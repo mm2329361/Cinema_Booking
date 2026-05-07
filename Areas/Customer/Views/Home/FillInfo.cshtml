@@ -1,0 +1,70 @@
+﻿
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow-lg border-0">
+
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">Book a Ticket</h4>
+                </div>
+
+                <div class="card-body">
+
+                    <form asp-area="Customer" asp-controller="Home" asp-action="Create" method="post" >
+
+                        <input type="hidden" name="movieId" value="@ViewBag.MovieId" />
+                        <!-- Full Name -->
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text"
+                                   name="name"
+                                   class="form-control"
+                                   placeholder="Enter your full name" />
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text"
+                                   name="phone"
+                                   class="form-control"
+                                   placeholder="Enter your phone number" />
+                        </div>
+
+                        <!-- Show Times -->
+                        <div class="mb-3">
+                        <select name="showTimeId" class="form-select">
+
+                            <option disabled selected>
+                                Choose Show Time
+                            </option>
+
+                            @foreach (var item in ViewBag.ShowTimes)
+                            {
+                                <option value="@item.Id">
+                                    @item.StartTime
+                                </option>
+                            }
+
+                        </select>
+                        </div>
+                        
+
+                        <!-- Submit -->
+                        <div class="d-grid">
+                            <button  type="submit" class="btn btn-success">
+                                Confirm Booking
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
