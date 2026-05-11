@@ -1,3 +1,8 @@
+using Cinema_Booking.Repositories;
+using Cinema_Booking.Repositories.Interfaces;
+using Cinema_Booking.Services;
+using Cinema_Booking.Services.Interfaces;
+
 namespace Cinema_Booking
 {
     public class Program
@@ -8,6 +13,11 @@ namespace Cinema_Booking
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddScoped<IMovieService, MovieService>();
+            builder.Services.AddScoped<IMovieRepository, MovieRepository>();
+            builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
             var app = builder.Build();
 

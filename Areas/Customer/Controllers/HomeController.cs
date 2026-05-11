@@ -1,19 +1,30 @@
 ﻿
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Cinema_Booking.Data;
 using Cinema_Booking.Models;
+using Cinema_Booking.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cinema_Booking.Areas.Customer.Controllers
 {
     [Area("Customer")]
     public class HomeController : Controller
     {
-        ApplicationDbContext _context = new ApplicationDbContext();
-        public IActionResult Index()
+        private readonly IBookingService _bookingService;
+        private readonly IMovieService _movieService;
+
+        public HomeController(
+            IBookingService bookingService,
+            IMovieService movieService
+        )
         {
-            var movies = _context.Movies.Include(m => m.Category).Include(m => m.Cinema).AsQueryable();
-            return View(movies.ToList());
+            _bookingService = bookingService;
+            _movieService = movieService;
+        }
+        public async Task<IActionResult> Index()
+        {
+            var movies = await _movieService.GetAllMoviesAsync();
+            return View(movies);
 
         }
 
@@ -22,9 +33,7 @@ namespace Cinema_Booking.Areas.Customer.Controllers
         {
             ViewBag.MovieId = id;
 
-            ViewBag.ShowTimes = _context.ShowTimes
-                .Where(s => s.MovieId == id)
-                .ToList();
+            ViewBag.ShowTimes = _bookingService.GetMovieShowTimes(id);
 
             return View();
         }
@@ -33,45 +42,23 @@ namespace Cinema_Booking.Areas.Customer.Controllers
         [HttpPost]
         public IActionResult Create(string name, string phone, int showTimeId)
         {
-            var customer = new Client()
+            try
             {
-                Name = name,
-                Phone = phone
-            };
+                _bookingService.CreateBooking(name, phone, showTimeId);
 
-            _context.Clients.Add(customer);
-            _context.SaveChanges();
-
-            var showTime = _context.ShowTimes
-                .FirstOrDefault(s => s.Id == showTimeId);
-
-            if (showTime == null)
-                return BadRequest();
-
-            Booking booking = new Booking()
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
             {
-                ClientId = customer.Id,
-                ShowTimeId = showTimeId,
-                
-            };
+                return BadRequest(ex.Message);
+            }
 
-            _context.Bookings.Add(booking);
-            _context.SaveChanges();
-
-            return RedirectToAction("Index");
+            
         }
 
         public IActionResult ShowAllBookings()
         {
-            var bookings = _context.Bookings
-                .Include(b => b.ShowTime)
-                    .ThenInclude(st => st.Movie)
-                        .ThenInclude(m => m.Cinema)
-
-                .Include(b => b.ShowTime.Movie.Category)
-
-                .Include(b => b.Client)
-                .ToList();
+            var bookings = _bookingService.GetAllBookings();
 
             return View(bookings);
         }
