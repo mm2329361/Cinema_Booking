@@ -30,7 +30,7 @@ namespace Cinema_Booking.Services
 
             var customer = new Client()
             {
-                Name = name,
+                FullName = name,
                 Phone = phone
             };
 
